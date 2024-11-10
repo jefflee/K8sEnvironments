@@ -1,0 +1,33 @@
+apiVersion: monitoring.coreos.com/v1
+kind: Prometheus
+metadata:
+  name: prometheus
+  labels:
+    app: prometheus
+spec:
+  serviceAccountName: prometheus
+  resources:
+    requests:
+      memory: 300Mi
+  replicas: 2  # Optional for high availability
+  serviceMonitorSelector:
+    matchLabels:
+      team: frontend
+  ruleSelector:          # Choose PrometheusRules
+    matchLabels:
+      release: prometheus 
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: prometheus
+  namespace: default
+spec:
+  type: NodePort
+  ports:
+  - name: web
+    nodePort: 30000
+    port: 9090
+    targetPort: web
+  selector:
+    prometheus: prometheus
